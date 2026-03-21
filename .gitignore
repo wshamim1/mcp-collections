@@ -39,3 +39,7 @@ htmlcov/
 
 # Notes created by research assistant
 examples/research-assistant/notes/
+
+# Temporary writing drafts
+tmp_blog.md
+TEMP_*.md
