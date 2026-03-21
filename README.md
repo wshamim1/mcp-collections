@@ -60,11 +60,11 @@ mcp-collections/
 │   └── 04-multi-model/           # Model switching & routing
 │
 └── examples/                     # Complete, runnable projects
-    ├── todo-manager/             # Full CRUD app with MCP
-    ├── code-reviewer/            # AI code review tool
     ├── data-analyst/             # Data analysis assistant
     └── research-assistant/       # Web research + summarization
 ```
+
+See the examples index: [examples/README.md](examples/README.md)
 
 ---
 

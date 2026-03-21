@@ -12,12 +12,6 @@ Run with:
 """
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import (
-    GetPromptResult,
-    Message,
-    PromptMessage,
-    TextContent,
-)
 
 mcp = FastMCP("prompts-demo")
 

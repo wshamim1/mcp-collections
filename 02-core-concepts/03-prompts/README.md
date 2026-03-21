@@ -24,22 +24,16 @@ Prompts differ from tools and resources:
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Message, UserMessage, TextContent
 
 mcp = FastMCP("prompts-demo")
 
 @mcp.prompt()
-def code_review(language: str, code: str) -> list[Message]:
+def code_review(language: str, code: str) -> str:
     """Review code and provide detailed feedback."""
-    return [
-        UserMessage(
-            TextContent(
-                type="text",
-                text=f"Please review this {language} code:\n\n```{language}\n{code}\n```\n\n"
-                     "Provide feedback on: correctness, style, performance, and security."
-            )
-        )
-    ]
+    return (
+        f"Please review this {language} code:\n\n```{language}\n{code}\n```\n\n"
+        "Provide feedback on: correctness, style, performance, and security."
+    )
 ```
 
 ---
@@ -68,3 +62,30 @@ In the inspector:
 - Understand when to use each prompt
 - View prompt structure
 - Stop with `Ctrl+C`
+
+### Example Prompt Inputs
+
+Some prompts require arguments before they can run in the inspector.
+
+**`translate_text`**
+- Required: `text`, `target_language`
+- Optional: `formality` (defaults to `neutral`)
+
+Example values:
+
+```json
+{
+    "text": "Hello, how are you today?",
+    "target_language": "Spanish",
+    "formality": "formal"
+}
+```
+
+**`code_review`**
+
+```json
+{
+    "language": "python",
+    "code": "def add(a, b):\n    return a + b"
+}
+```
