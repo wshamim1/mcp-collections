@@ -267,3 +267,35 @@ Cons:
 2. Move to internal remote service (SSE) for shared usage
 3. Add gateway + auth + logging + rate limits
 4. Containerize and scale based on traffic and reliability needs
+
+## 17. Who pays LLM cost in MCP: client, server, or both?
+
+All three models are possible, depending on where LLM API calls are made.
+
+### Client-side cost (most common)
+
+- The MCP client (agent/app) calls the LLM provider directly
+- MCP server only exposes tools/resources/prompts
+- Cost is paid by whoever owns the client-side model API key
+
+### Server-side cost
+
+- MCP server tools call an LLM internally (for example, summarize, classify, route)
+- Cost is paid by whoever operates the MCP server
+
+### Hybrid cost (both)
+
+- Client model reasons and chooses tools
+- One or more server tools also call LLMs
+- Both client and server incur model costs
+
+### How to identify where cost is happening
+
+- Check where `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or similar keys are configured
+- Review token usage and billing metrics on both client and server logs
+- Tag requests with correlation IDs so you can attribute cost per workflow
+
+### Practical recommendation
+
+- Keep LLM calls in one place when possible to simplify billing and governance
+- If using hybrid design, track token usage per component and set budget alerts
