@@ -18,6 +18,9 @@ A basic MCP server with 3 tools:
 ```
 03-first-mcp-server/
 ├── simple_server.py      # The MCP server
+├── screenshots/
+│   ├── server_browser.png
+│   └── test_client.png
 ├── test_client.py        # Test it manually
 └── README.md
 ```
@@ -71,6 +74,18 @@ Once running, you can:
 - Enter parameters and see results
 - View the full request/response JSON-RPC messages
 - Stop with `Ctrl+C`
+
+---
+
+## Screenshots
+
+### MCP Inspector in Browser
+
+![MCP Inspector UI](./screenshots/server_browser.png)
+
+### Programmatic Test Client Output
+
+![Test Client Output](./screenshots/test_client.png)
 
 ---
 
