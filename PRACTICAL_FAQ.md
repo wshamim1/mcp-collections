@@ -46,3 +46,125 @@ At minimum:
 - Rate limits and timeout limits
 - Structured logs + monitoring
 - TLS for network transport
+
+## 6. When should I use tools vs resources vs prompts?
+
+Use:
+
+- `tools` for actions or computations, such as querying a service, creating a record, or triggering a workflow
+- `resources` for readable data, such as files, database views, configuration, or reference documents
+- `prompts` for reusable templates that guide how a model should perform a repeated task
+
+If the model needs to do something, use a tool. If it needs to read something, use a resource. If it needs reusable instruction scaffolding, use a prompt.
+
+## 7. Should I build one large MCP server or several smaller ones?
+
+Usually, several smaller domain-based servers are easier to operate.
+
+Examples:
+
+- one server for customer data
+- one server for billing
+- one server for document search
+
+Smaller servers improve ownership, security boundaries, testing, and deployment independence. A single large server can be fine early on, but often becomes harder to maintain as the number of tools grows.
+
+## 8. Can multiple AI models use the same MCP server?
+
+Yes. That is one of the main advantages of MCP.
+
+Your MCP server can expose the same tools to different model clients, such as Claude, OpenAI-based apps, or local models through Ollama, as long as the client side supports MCP.
+
+This reduces duplication and prevents building separate integrations for each model provider.
+
+## 9. How should I handle authentication for external consumers?
+
+Common approaches include:
+
+- API keys for simple service-to-service access
+- OAuth for user-delegated access
+- JWT or internal identity tokens for enterprise environments
+- SSO-backed gateway or reverse proxy for internal teams
+
+For public or partner-facing deployments, avoid anonymous access. Combine authentication with tool-level authorization so users can only call the capabilities they are allowed to use.
+
+## 10. Can I expose write operations safely?
+
+Yes, but write operations need stronger controls than read-only tools.
+
+Recommended safeguards:
+
+- explicit allowlists for writable operations
+- approval steps for sensitive actions
+- idempotency for repeatable requests
+- audit logging for every mutation
+- role checks before execution
+- narrow scopes such as updating only specific records or fields
+
+Avoid generic write tools like `execute_any_sql` unless they are heavily sandboxed and restricted.
+
+## 11. How do I test an MCP server before production?
+
+Use multiple layers of testing:
+
+- `mcp dev` for interactive inspection and manual validation
+- unit tests for business logic behind each tool
+- integration tests for server behavior and downstream systems
+- permission tests to verify role boundaries
+- failure-path tests for timeouts, invalid inputs, and dependency errors
+
+Testing only happy paths is not enough. The dangerous failures usually happen in auth, retries, malformed input, and partial downstream outages.
+
+## 12. What should I log for MCP requests?
+
+At minimum, log:
+
+- request ID
+- caller identity
+- tool name
+- input validation result
+- latency
+- success or failure status
+- downstream dependency errors
+
+For sensitive systems, also keep audit logs showing who invoked what, when, and with what outcome.
+
+## 13. How do I prevent prompt injection or unsafe tool usage?
+
+MCP helps by defining explicit tool boundaries, but it does not solve prompt injection by itself.
+
+You still need:
+
+- strict authorization on the server side
+- validation of all tool arguments
+- policy checks before dangerous actions
+- output filtering where necessary
+- separation between trusted instructions and untrusted user content
+
+Never assume that because a model asked for a tool call, the call should be allowed.
+
+## 14. Can MCP run only inside my company network?
+
+Yes. Many enterprise MCP deployments should be internal only.
+
+Common patterns:
+
+- run the server on a private VPC or internal subnet
+- expose it only through VPN or zero-trust access
+- put it behind an internal API gateway
+- restrict access by identity, IP range, or service account
+
+MCP does not require public internet exposure.
+
+## 15. What is the difference between MCP and a normal REST API?
+
+A REST API is a general application interface. MCP is a standard interface specifically designed for model-to-tool interaction.
+
+Key differences:
+
+- MCP has built-in concepts like tools, resources, prompts, and capability discovery
+- MCP is designed for AI clients deciding dynamically what to call
+- MCP standardizes how clients list and use capabilities across providers
+- REST APIs often still sit behind MCP servers as the underlying implementation
+
+In practice, many teams wrap existing REST or database operations with MCP so models can use them in a structured way.
