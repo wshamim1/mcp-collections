@@ -440,3 +440,107 @@ If the server is hosted by another team or company, you usually do not run it lo
 - use `uvx` to try packaged public servers quickly
 - use `pip install` when you want a stable local CLI install
 - use remote endpoints when the server is centrally hosted
+
+## 21. How do I version MCP servers and tools safely?
+
+Treat tool contracts like APIs.
+
+Recommended approach:
+
+- prefer additive changes over breaking changes
+- keep stable tool names once clients depend on them
+- add new optional fields instead of changing required fields abruptly
+- introduce replacement tools before removing old ones
+- document deprecation windows clearly
+
+If you must make a breaking change, version the tool or server explicitly, for example:
+
+- `get_customer_v2`
+- `/mcp/v2/...` at the gateway level
+
+The safest path is to let old and new contracts coexist for a while.
+
+## 22. How do I handle multi-tenant data isolation in MCP?
+
+Multi-tenant MCP servers should never rely only on model behavior for isolation.
+
+Recommended safeguards:
+
+- derive tenant identity from auth context, not from freeform user input
+- enforce tenant filters in every query or data access path
+- apply row-level and object-level authorization checks
+- prevent cross-tenant identifiers from being queried directly unless authorized
+- log tenant context on every request for auditability
+
+Good rule: the server should always know which tenant is being served before any tool executes.
+
+## 23. How do I support approvals for sensitive MCP tool calls?
+
+Sensitive actions should use human-in-the-loop approval patterns.
+
+Examples of actions that may need approval:
+
+- approving invoices
+- updating payroll or HR records
+- deleting data
+- changing production infrastructure
+- sending external communications
+
+Common design pattern:
+
+1. model proposes the action
+2. server creates a pending action record
+3. human approves or rejects it
+4. server executes only after approval
+
+Best practices:
+
+- store who approved the action and when
+- include original inputs and final outcome in audit logs
+- expire stale approvals after a time limit
+- make approved actions idempotent where possible
+
+## 24. How do I test MCP servers in CI/CD?
+
+Use multiple test layers in CI/CD, not just unit tests.
+
+Recommended pipeline:
+
+- lint and type-check server code
+- run unit tests for tool logic
+- run integration tests for MCP server behavior
+- run contract tests to validate tool schemas and expected outputs
+- run smoke tests in a staging environment using `mcp dev` or a headless client
+
+What to test specifically:
+
+- required vs optional arguments
+- auth and permission failures
+- dependency timeout/error behavior
+- idempotency for write operations
+- backward compatibility of tool contracts
+
+CI should catch both logic bugs and interface drift.
+
+## 25. How do I migrate an existing REST API into MCP?
+
+The easiest path is to wrap existing domain operations instead of rewriting everything.
+
+Migration pattern:
+
+1. identify high-value REST endpoints already used by people or internal apps
+2. map them into MCP tools with clean descriptions and typed arguments
+3. expose read-only operations first
+4. add auth, validation, and audit controls around write operations
+5. keep REST as the backend implementation while MCP becomes the model-facing layer
+
+Do not expose your REST API one-to-one without thinking through tool design.
+
+Better MCP design usually means:
+
+- combining low-level REST calls into business-level tools
+- removing irrelevant technical parameters
+- simplifying outputs for model consumption
+- adding safer defaults and stronger validation
+
+In many cases, REST remains your system API, and MCP becomes the safer AI interface on top.
