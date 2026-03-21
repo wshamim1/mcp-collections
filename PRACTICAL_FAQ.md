@@ -168,3 +168,102 @@ Key differences:
 - REST APIs often still sit behind MCP servers as the underlying implementation
 
 In practice, many teams wrap existing REST or database operations with MCP so models can use them in a structured way.
+
+## 16. What are different MCP deployment options?
+
+Common deployment options, from simplest to most production-ready:
+
+### Option A: Local `stdio` process
+
+- Client launches MCP server as a local child process
+- Communication happens via stdin/stdout
+- Best for local development and personal workflows
+
+Pros:
+
+- simplest setup
+- no network exposure
+- fast iteration
+
+Cons:
+
+- not easily shared across a team
+- tied to local machine/runtime
+
+### Option B: Remote server over SSE/HTTP
+
+- MCP server runs as a network service
+- Clients connect remotely over HTTP/SSE
+- Best for team-shared services
+
+Pros:
+
+- centralized operations and governance
+- one service can support multiple clients
+
+Cons:
+
+- requires stronger security and ops controls
+
+### Option C: Private internal deployment (VPC/VPN)
+
+- Remote server but reachable only inside private network
+- Protected by VPN, private subnet, or zero-trust access
+
+Pros:
+
+- strong security boundary
+- good fit for sensitive internal systems
+
+Cons:
+
+- requires internal networking/platform setup
+
+### Option D: API gateway in front of MCP server
+
+- Gateway handles auth, TLS, rate limits, and policy
+- MCP server focuses on tool logic
+
+Pros:
+
+- centralized access control
+- standardized security and observability
+
+Cons:
+
+- more platform complexity
+
+### Option E: Containerized deployment (Docker/Kubernetes)
+
+- MCP server packaged as container image
+- Deployed to ECS/AKS/GKE/Kubernetes or similar
+
+Pros:
+
+- repeatable deployment
+- scaling and resilience support
+
+Cons:
+
+- needs container platform maturity
+
+### Option F: Serverless-backed MCP tools
+
+- MCP layer routes tool calls to serverless functions
+- Useful for bursty, event-driven workloads
+
+Pros:
+
+- cost-efficient at low/variable traffic
+
+Cons:
+
+- cold starts
+- more complexity for stateful flows
+
+### Recommended adoption path
+
+1. Start local with `stdio` and `mcp dev`
+2. Move to internal remote service (SSE) for shared usage
+3. Add gateway + auth + logging + rate limits
+4. Containerize and scale based on traffic and reliability needs
