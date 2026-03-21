@@ -10,52 +10,66 @@ Before MCP, every AI application needed custom integrations — each model provi
 
 ## The Problem MCP Solves
 
-```
-WITHOUT MCP (M×N problem):
-────────────────────────────
-Claude ──── custom code ──── GitHub
-Claude ──── custom code ──── Slack
-GPT-4  ──── custom code ──── GitHub
-GPT-4  ──── custom code ──── Slack
-Gemini ──── custom code ──── GitHub
-... (every combination needs its own code)
+```mermaid
+graph LR
+    subgraph without ["WITHOUT MCP (M×N problem)"]
+        C1["Claude"] -->|custom code| G1["GitHub"]
+        C2["Claude"] -->|custom code| S1["Slack"]
+        G2["GPT-4"] -->|custom code| G3["GitHub"]
+        G4["GPT-4"] -->|custom code| S2["Slack"]
+        Ge["Gemini"] -->|custom code| Go["GitHub"]
+    end
 
-WITH MCP (M+N solution):
-────────────────────────────
-Claude ─┐
-GPT-4  ─┼── MCP Protocol ──── GitHub MCP Server
-Gemini ─┘                 └── Slack   MCP Server
-                          └── Custom  MCP Server
+    subgraph with ["WITH MCP (M+N solution)"]
+        Claude["Claude"]
+        GPT4["GPT-4"]
+        Gemini["Gemini"]
+        MCP["<b>MCP Protocol</b>"]
+        GitHub["GitHub MCP Server"]
+        Slack["Slack MCP Server"]
+        Custom["Custom MCP Server"]
+        
+        Claude --> MCP
+        GPT4 --> MCP
+        Gemini --> MCP
+        
+        MCP --> GitHub
+        MCP --> Slack
+        MCP --> Custom
+    end
+    
+    style MCP fill:#4CAF50,color:#fff
+    style without fill:#f44336,color:#fff
+    style with fill:#2196F3,color:#fff
 ```
 
 ---
 
 ## Core Architecture
 
-```
-┌─────────────────────────────────────────────────┐
-│                  MCP Host                        │
-│  (Claude Desktop, VS Code, Custom App)           │
-│                                                  │
-│  ┌──────────────┐    ┌──────────────────────┐   │
-│  │  AI Model    │◄──►│    MCP Client         │   │
-│  │ (LLM Engine) │    │ (Protocol handler)    │   │
-│  └──────────────┘    └──────────┬───────────┘   │
-└─────────────────────────────────┼───────────────┘
-                                  │ MCP Protocol
-                     ┌────────────▼────────────┐
-                     │      MCP Server          │
-                     │  ┌─────────────────────┐ │
-                     │  │ Tools   (functions)  │ │
-                     │  │ Resources (data)     │ │
-                     │  │ Prompts (templates)  │ │
-                     │  └─────────────────────┘ │
-                     └─────────────┬────────────┘
-                                   │
-                     ┌─────────────▼────────────┐
-                     │   External World          │
-                     │  (APIs, DBs, Files, etc.) │
-                     └──────────────────────────┘
+```mermaid
+graph TB
+    subgraph Host["MCP Host<br/>(Claude Desktop, VS Code, Custom App)"]
+        Model["AI Model<br/>(LLM Engine)"]
+        Client["MCP Client<br/>(Protocol handler)"]
+        Model <-->|Request/Response| Client
+    end
+    
+    Client <-->|MCP Protocol| Server["MCP Server"]
+    
+    subgraph ServerTools[" "]
+        Tools["🔧 Tools<br/>(functions)"]
+        Resources["📂 Resources<br/>(data)"]
+        Prompts["💬 Prompts<br/>(templates)"]
+    end
+    
+    Server --> ServerTools
+    Server <-->|Execute| External["External World<br/>(APIs, DBs, Files, etc.)"]
+    
+    style Host fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style Server fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+    style External fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style ServerTools fill:#f3e5f5,stroke:#7b1fa2
 ```
 
 ---

@@ -14,41 +14,29 @@ Understanding MCP's architecture is key to building robust, scalable AI integrat
 
 ## High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        MCP HOST                              │
-│                                                             │
-│  ┌──────────────────┐     ┌────────────────────────────────┐ │
-│  │   AI Application  │     │         MCP Client             │ │
-│  │                  │────►│  • Manages server connections  │ │
-│  │  • Claude Desktop│     │  • Routes tool/resource calls  │ │
-│  │  • VS Code       │◄────│  • Handles protocol state      │ │
-│  │  • Custom app    │     │  • Capability negotiation      │ │
-│  └──────────────────┘     └──────────────┬─────────────────┘ │
-└─────────────────────────────────────────┼───────────────────┘
-                                          │
-                              ┌───────────┴───────────┐
-                              │    Transport Layer     │
-                              │                       │
-                              │  stdio │ SSE │ WS     │
-                              └───────────┬───────────┘
-                                          │
-            ┌─────────────────────────────┼──────────────────────────┐
-            │                            │                           │
-            ▼                            ▼                           ▼
-  ┌──────────────────┐         ┌──────────────────┐        ┌──────────────────┐
-  │   MCP Server A   │         │   MCP Server B   │        │   MCP Server C   │
-  │                  │         │                  │        │                  │
-  │  Tools:          │         │  Tools:          │        │  Tools:          │
-  │  • search_web    │         │  • query_db      │        │  • send_email    │
-  │  • fetch_url     │         │  • write_record  │        │  • read_email    │
-  │                  │         │                  │        │                  │
-  │  Resources:      │         │  Resources:      │        │                  │
-  │  • web://{url}   │         │  • db://{table}  │        │                  │
-  └──────────┬───────┘         └────────┬─────────┘        └────────┬─────────┘
-             │                          │                            │
-             ▼                          ▼                            ▼
-      External APIs              SQL Database               Email Service
+```mermaid
+graph TB
+    subgraph Host["MCP HOST"]
+        App["AI Application<br/>• Claude Desktop<br/>• VS Code<br/>• Custom App"]
+        Client["MCP Client<br/>• Manages connections<br/>• Routes tool calls<br/>• Protocol handler<br/>• Capability negotiation"]
+        App <-->|Request/Response| Client
+    end
+    
+    Client -->|Transport| Transport["Transport Layer<br/>stdio | SSE | WebSocket"]
+    
+    Transport --> ServerA["MCP Server A<br/>🔧 Tools: search_web, fetch_url<br/>📂 Resources: web://{url}"]
+    Transport --> ServerB["MCP Server B<br/>🔧 Tools: query_db, write_record<br/>📂 Resources: db://{table}"]
+    Transport --> ServerC["MCP Server C<br/>🔧 Tools: send_email, read_email"]
+    
+    ServerA --> ExtA["External APIs"]
+    ServerB --> ExtB["SQL Database"]
+    ServerC --> ExtC["Email Service"]
+    
+    style Host fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style Client fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+    style ServerA fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style ServerB fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style ServerC fill:#fff3e0,stroke:#f57c00,stroke-width:2px
 ```
 
 ---
@@ -59,16 +47,18 @@ Understanding MCP's architecture is key to building robust, scalable AI integrat
 
 Used for **local** MCP servers launched as child processes.
 
-```
-Host Process                      Server Process
-     │                                  │
-     │──── spawn(python server.py) ────►│
-     │                                  │
-     │──── stdin: JSON-RPC message ────►│
-     │◄─── stdout: JSON-RPC response ───│
-     │                                  │
-     │──── stdin: next message ────────►│
-     │◄─── stdout: response ────────────│
+```mermaid
+sequenceDiagram
+    participant Host as Host Process
+    participant Server as Server Process
+    
+    Host->>Server: spawn(python server.py)
+    
+    Host->>Server: stdin: JSON-RPC message
+    Server->>Host: stdout: JSON-RPC response
+    
+    Host->>Server: stdin: next message
+    Server->>Host: stdout: response
 ```
 
 **When to use:**
@@ -95,14 +85,18 @@ async with stdio_client(params) as (read, write):
 
 Used for **remote** MCP servers accessible over HTTP.
 
-```
-Host (Client)                    Remote Server
-     │                                │
-     │──── GET /sse ──────────────────►│  (long-lived connection)
-     │◄─── SSE stream ─────────────────│
-     │                                │
-     │──── POST /message ─────────────►│  (send commands)
-     │◄─── SSE event: response ────────│
+```mermaid
+sequenceDiagram
+    participant Host as Host (Client)
+    participant Server as Remote Server
+    
+    Host->>Server: GET /sse (long-lived)
+    loop SSE Stream
+        Server->>Host: SSE stream events
+    end
+    
+    Host->>Server: POST /message (send command)
+    Server->>Host: SSE event: response
 ```
 
 **When to use:**
@@ -172,21 +166,33 @@ All MCP messages follow the JSON-RPC 2.0 standard:
 
 ## Connection Lifecycle
 
-```
-Client                    Server
-  │                          │
-  │──── initialize ─────────►│  "Hello, here are my capabilities"
-  │◄─── initialized ─────────│  "Hello, here are MY capabilities"
-  │                          │
-  │──── tools/list ─────────►│  "What tools do you have?"
-  │◄─── tools/list result ───│  "Here are my tools..."
-  │                          │
-  │──── tools/call ─────────►│  "Call this tool with these args"
-  │◄─── tools/call result ───│  "Here is the result"
-  │                          │
-  │  ... (many exchanges) ... │
-  │                          │
-  │──── (connection close) ──►│  Session ends
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    
+    Client->>Server: initialize
+    Note over Client,Server: "Hello, here are my capabilities"
+    Server->>Client: initialized
+    Note over Server,Client: "Hello, here are MY capabilities"
+    
+    Client->>Server: tools/list
+    Note over Client,Server: "What tools do you have?"
+    Server->>Client: tools/list result
+    Note over Server,Client: "Here are my tools..."
+    
+    Client->>Server: tools/call
+    Note over Client,Server: "Call this tool with these args"
+    Server->>Client: tools/call result
+    Note over Server,Client: "Here is the result"
+    
+    loop Many Exchanges
+        Client->>Server: Additional tool calls
+        Server->>Client: Responses
+    end
+    
+    Client->>Server: (connection close)
+    Note over Client,Server: Session ends
 ```
 
 ---
@@ -210,30 +216,29 @@ server_capabilities = {
 
 ## Security Architecture
 
-```
-                    Trust Boundary
-┌──────────────────────────────────────┐
-│  HOST (trusted zone)                 │
-│                                      │
-│  • AI Model (reasoning)              │
-│  • MCP Client (protocol)             │
-│  • User consent layer                │
-│                                      │
-└─────────────────┬────────────────────┘
-                  │ Only approved calls
-                  ▼
-┌──────────────────────────────────────┐
-│  SERVER (sandboxed)                  │
-│                                      │
-│  • Tools run in isolated process     │
-│  • Cannot access host directly       │
-│  • Declared capabilities only        │
-│  • User approves tool calls          │
-│                                      │
-└─────────────────┬────────────────────┘
-                  │ Constrained access
-                  ▼
-              External World
+```mermaid
+graph TB
+    subgraph Host["HOST (trusted zone)"]
+        Model["AI Model<br/>(reasoning)"]
+        Client["MCP Client<br/>(protocol)"]
+        Consent["User consent layer"]
+        Model --- Client --- Consent
+    end
+    
+    Consent -->|Only approved calls| Server
+    
+    subgraph Server["SERVER (sandboxed)"]
+        Process["Tools in isolated process"]
+        Decl["Declared capabilities only"]
+        Approve["User approves tool calls"]
+        Access["Cannot access host directly"]
+    end
+    
+    Server -->|Constrained access| External["External World"]
+    
+    style Host fill:#c8e6c9,stroke:#388e3c,stroke-width:3px
+    style Server fill:#ffccbc,stroke:#d84315,stroke-width:3px
+    style External fill:#fff3e0,stroke:#f57c00
 ```
 
 **Key Security Principles:**
