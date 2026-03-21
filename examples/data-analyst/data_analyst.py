@@ -41,6 +41,11 @@ from mcp.server.fastmcp import FastMCP
 DB_PATH = Path(__file__).parent / "sales.db"
 
 
+def ensure_database_ready() -> None:
+    """Create demo DB if missing so inspector/tool calls always have tables."""
+    create_sample_database()
+
+
 def create_sample_database():
     """Create a realistic sales database for analysis demos."""
     if DB_PATH.exists():
@@ -133,6 +138,8 @@ async def query_sales(sql: str) -> dict:
     if not sql.strip().upper().startswith("SELECT"):
         return {"error": "Only SELECT queries allowed."}
 
+    ensure_database_ready()
+
     try:
         async with aiosqlite.connect(DB_PATH) as db:
             db.row_factory = aiosqlite.Row
@@ -171,6 +178,8 @@ async def calculate_revenue(
 
     if group_by not in group_clauses:
         return {"error": f"group_by must be one of: {list(group_clauses.keys())}"}
+
+    ensure_database_ready()
 
     group_expr, alias = group_clauses[group_by]
 
@@ -233,6 +242,7 @@ async def top_customers(limit: int = 5) -> dict:
         ORDER BY total_spent DESC
         LIMIT ?
     """
+    ensure_database_ready()
     try:
         async with aiosqlite.connect(DB_PATH) as db:
             db.row_factory = aiosqlite.Row
