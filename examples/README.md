@@ -17,6 +17,7 @@ This folder contains complete, practical MCP example projects you can run and ex
 | Procurement Assistant | `examples/procurement-assistant/` | Compares vendors and tracks purchase requests | Starter template |
 | Compliance Assistant | `examples/compliance-assistant/` | Collects evidence and maps controls to policies | Starter template |
 | Analytics Dashboard Assistant | `examples/analytics-dashboard-assistant/` | Builds KPI summaries from data warehouse queries | Starter template |
+| Human-in-the-Loop Assistant | `examples/human-in-the-loop-assistant/` | Proposes actions that require explicit human approval before execution | Starter template |
 
 ## How to Run Current Examples
 
@@ -64,6 +65,10 @@ python compliance_assistant.py
 # Analytics dashboard assistant
 cd examples/analytics-dashboard-assistant
 python analytics_dashboard_assistant.py
+
+# Human-in-the-loop assistant
+cd examples/human-in-the-loop-assistant
+python human_in_the_loop_assistant.py
 ```
 
 Use MCP inspector for interactive testing:
@@ -80,4 +85,5 @@ mcp dev examples/hr-self-service-assistant/hr_self_service_assistant.py
 mcp dev examples/procurement-assistant/procurement_assistant.py
 mcp dev examples/compliance-assistant/compliance_assistant.py
 mcp dev examples/analytics-dashboard-assistant/analytics_dashboard_assistant.py
+mcp dev examples/human-in-the-loop-assistant/human_in_the_loop_assistant.py
 ```

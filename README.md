@@ -62,6 +62,7 @@ mcp-collections/
 └── examples/                     # Complete, runnable projects
     ├── data-analyst/             # Data analysis assistant
     ├── github-assistant/         # GitHub repositories, issues, and PRs
+    ├── human-in-the-loop-assistant/ # Approval-gated actions
     └── research-assistant/       # Web research + summarization
 ```
 
