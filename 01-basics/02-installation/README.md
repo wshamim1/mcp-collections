@@ -160,6 +160,131 @@ code --install-extension anthropic.mcp
 
 ---
 
+## 9. Common Ways to Run or Access MCP Servers
+
+There are a few common patterns for accessing MCP servers, depending on how the server is distributed.
+
+### Option A: Run a local Python file directly
+
+Best when you have the server source code locally.
+
+```bash
+python server.py
+
+# Or inspect it interactively
+mcp dev server.py
+```
+
+### Option B: Run using `uv`
+
+Useful when the project uses `pyproject.toml` and you want reproducible local execution.
+
+```bash
+uv run server.py
+
+# Or with dependencies resolved via uv
+uv run --with mcp python server.py
+```
+
+This is also what you may see under the hood when Inspector launches a local file-based server.
+
+### Option C: Run a packaged server installed with `pip`
+
+Some MCP servers are published as Python packages.
+
+```bash
+pip install my-mcp-server
+
+# Then run the package's CLI entry point
+my-mcp-server
+```
+
+Or if the package exposes a module entrypoint:
+
+```bash
+python -m my_mcp_server
+```
+
+### Option D: Run using `uvx`
+
+`uvx` is useful when you want to run a published tool without permanently installing it into your environment.
+
+```bash
+uvx my-mcp-server
+```
+
+This is similar to `npx` in the Node.js ecosystem.
+
+Good for:
+
+- quick evaluation of a public MCP server
+- trying a server without modifying your current environment
+- running a packaged tool in CI or disposable environments
+
+### Option E: Connect to a remote hosted MCP server
+
+If a company hosts an MCP server remotely, you do not run the source code locally. Instead, your client connects to the hosted endpoint.
+
+Typical pattern:
+
+- internal server over VPN/private network
+- external hosted server over SSE/HTTP
+- authentication via API key, OAuth, or gateway token
+
+In this case, the client discovers tools/resources/prompts from the remote server rather than launching a local process.
+
+### Claude Desktop / client config examples
+
+**Local Python file**
+
+```json
+{
+  "mcpServers": {
+    "my-local-server": {
+      "command": "python",
+      "args": ["/absolute/path/to/server.py"]
+    }
+  }
+}
+```
+
+**Using `uv`**
+
+```json
+{
+  "mcpServers": {
+    "my-uv-server": {
+      "command": "uv",
+      "args": ["run", "/absolute/path/to/server.py"]
+    }
+  }
+}
+```
+
+**Using an installed CLI**
+
+```json
+{
+  "mcpServers": {
+    "my-packaged-server": {
+      "command": "my-mcp-server",
+      "args": []
+    }
+  }
+}
+```
+
+### Which option should I choose?
+
+- Use `python server.py` when developing locally
+- Use `mcp dev server.py` when testing interactively
+- Use `uv run` when your project is managed with `uv`
+- Use `uvx` when evaluating public packaged servers quickly
+- Use `pip install` when you want a stable installed CLI
+- Use remote SSE/HTTP when the server is hosted by another team or company
+
+---
+
 ## Project Structure for MCP Development
 
 ```

@@ -381,3 +381,62 @@ Expose endpoints such as:
 2. Add metrics and dashboards
 3. Add alerts
 4. Add traces for end-to-end debugging
+
+## 20. How do I run or access MCP servers with `python`, `pip`, `uv`, or `uvx`?
+
+The right option depends on how the MCP server is distributed.
+
+### Local source file
+
+If you have the server code locally:
+
+```bash
+python server.py
+mcp dev server.py
+```
+
+### Installed Python package
+
+If the server is published as a package:
+
+```bash
+pip install my-mcp-server
+my-mcp-server
+```
+
+Or sometimes:
+
+```bash
+python -m my_mcp_server
+```
+
+### Using `uv`
+
+If the project uses `uv`:
+
+```bash
+uv run server.py
+uv run --with mcp python server.py
+```
+
+### Using `uvx`
+
+If you want to run a packaged server without installing it permanently:
+
+```bash
+uvx my-mcp-server
+```
+
+This is useful for quick trials and disposable environments.
+
+### Remote hosted server
+
+If the server is hosted by another team or company, you usually do not run it locally at all. Your MCP client connects to the remote endpoint and lists tools/resources/prompts from there.
+
+### Practical recommendation
+
+- use `python` or `mcp dev` while developing locally
+- use `uv run` when your project is managed by `uv`
+- use `uvx` to try packaged public servers quickly
+- use `pip install` when you want a stable local CLI install
+- use remote endpoints when the server is centrally hosted
