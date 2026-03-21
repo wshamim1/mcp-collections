@@ -55,3 +55,16 @@ def code_review(language: str, code: str) -> list[Message]:
 ```bash
 mcp dev prompts_basic.py
 ```
+
+The `mcp dev` command will:
+1. Install the MCP Inspector (npm) if needed
+2. Start a proxy server on `localhost:6277`
+3. Open the interactive inspector in your browser
+4. Display all available prompts
+
+In the inspector:
+- Browse all prompt templates
+- See prompt arguments and descriptions
+- Understand when to use each prompt
+- View prompt structure
+- Stop with `Ctrl+C`

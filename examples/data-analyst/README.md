@@ -12,20 +12,45 @@ Ask natural language questions about sales data. The AI automatically:
 
 ## Try It
 
+### Option 1: Standalone Analyzer
+
+**With Claude (recommended)**
 ```bash
 cd examples/data-analyst
-
-# With Claude (recommended)
 export ANTHROPIC_API_KEY=your-key
 python data_analyst.py
+```
 
-# With local Ollama (no API key needed)
+This will:
+1. Create a demo database with sample sales data
+2. Connect to Claude API
+3. Run analysis and display insights
+
+**With local Ollama (no API key needed)**
+```bash
+cd examples/data-analyst
 ollama pull llama3.2
 python data_analyst.py --model ollama
-
-# Explore with MCP inspector
-mcp dev data_analyst.py --server
 ```
+
+### Option 2: Inspect Tools with MCP Inspector
+```bash
+cd examples/data-analyst
+mcp dev data_analyst.py
+```
+
+The `mcp dev` command will:
+1. Install the MCP Inspector (npm) if needed
+2. Start a proxy server on `localhost:6277`
+3. Open the interactive inspector in your browser
+4. Display all available analysis tools
+
+In the inspector:
+- Test database queries
+- See available tables and schemas
+- Call analysis tools manually
+- View results immediately
+- Stop with `Ctrl+C`
 
 ## Sample Questions
 

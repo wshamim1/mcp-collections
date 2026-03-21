@@ -15,15 +15,32 @@ An AI-powered research assistant that searches Wikipedia, reads web pages, and s
 
 ## Run It
 
+### Option 1: Inspector (Recommended for Testing)
 ```bash
 cd examples/research-assistant
-
-# Explore tools with inspector
 mcp dev research_assistant.py
+```
 
-# Start server
+The `mcp dev` command will:
+1. Install the MCP Inspector (npm) if needed
+2. Start a proxy server on `localhost:6277`
+3. Open the interactive inspector in your browser
+4. Display all available tools
+
+In the inspector:
+- Test each research tool individually
+- See what parameters they accept
+- View results in real-time
+- Examine tool schemas
+- Stop with `Ctrl+C`
+
+### Option 2: Start as Server (Integration)
+```bash
+cd examples/research-assistant
 python research_assistant.py
 ```
+
+This starts the server on stdio transport, ready for a client like Claude Desktop to connect.
 
 ## Example Prompts to Try
 

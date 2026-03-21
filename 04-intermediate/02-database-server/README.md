@@ -20,6 +20,28 @@ orders       — id, user_id, product_id, quantity, total, ordered_at
 
 ## Run It
 
+### Option 1: Inspector (Recommended for Testing)
+```bash
+cd 04-intermediate/02-database-server
+mcp dev database_server.py
+```
+
+The `mcp dev` command will:
+1. Install the MCP Inspector (npm) if needed
+2. Start a proxy server on `localhost:6277`
+3. Create a demo database with sample sales data
+4. Open the interactive inspector in your browser
+5. Display all database tools and resources
+
+In the inspector:
+- Browse available tables
+- Test SQL queries
+- See how parameterized queries work
+- View resources (table schemas, data)
+- Explore database capabilities
+- Stop with `Ctrl+C`
+
+### Option 2: Start as Server (Integration)
 ```bash
 cd 04-intermediate/02-database-server
 python database_server.py
@@ -30,6 +52,8 @@ DB_PATH=/path/to/mydb.sqlite python database_server.py
 # Read-only mode:
 READ_ONLY=true python database_server.py
 ```
+
+This starts the server on stdio transport, ready for a client like Claude Desktop to connect.
 
 ## Example Queries to Ask the AI
 

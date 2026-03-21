@@ -31,10 +31,34 @@ export ANTHROPIC_API_KEY=your-key-here
 
 ## Run
 
+### Option 1: Standalone with Claude (Full Example)
 ```bash
 cd 06-model-integrations/01-claude
+export ANTHROPIC_API_KEY=your-key-here
 python claude_with_mcp.py
 ```
+
+This will:
+1. Create a local MCP server with database tools
+2. Connect to Anthropic Claude API
+3. Run an agentic loop where Claude:
+   - Analyzes the database schema
+   - Decides which tools to call
+   - Gets results back and reasons on them
+   - Returns insights
+4. Display the conversation and Claude's reasoning
+
+### Option 2: Inspect Tools with MCP Inspector
+```bash
+cd 06-model-integrations/01-claude
+mcp dev claude_with_mcp.py
+```
+
+This opens the interactive inspector where you can:
+- See all available database tools
+- Test queries manually
+- Understand the tool schemas
+- Debug before using with Claude
 
 ## Key Code Pattern
 

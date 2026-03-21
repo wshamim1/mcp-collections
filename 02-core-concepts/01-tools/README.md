@@ -57,10 +57,30 @@ Tools can return multiple types — MCP handles them all:
 
 ## Run the Examples
 
+### Test Basic Tools
 ```bash
-# Test basic tools
 mcp dev tools_basic.py
+```
 
-# Test advanced tools
+The `mcp dev` command will:
+1. Install the MCP Inspector (npm) if needed
+2. Start a proxy server on `localhost:6277`
+3. Open the interactive inspector in your browser
+4. Let you test each tool with different inputs
+
+Once open:
+- Click any tool to test it
+- Enter parameters and see results immediately
+- View the full JSON-RPC request/response
+- Stop with `Ctrl+C`
+
+### Test Advanced Tools
+```bash
 mcp dev tools_advanced.py
 ```
+
+Explore advanced patterns like:
+- Error handling and exceptions
+- Async/await tools
+- Complex input validation
+- Long-running operations

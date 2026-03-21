@@ -50,3 +50,16 @@ def get_record(database: str, table: str, id: str) -> str: ...
 ```bash
 mcp dev resources_basic.py
 ```
+
+The `mcp dev` command will:
+1. Install the MCP Inspector (npm) if needed
+2. Start a proxy server on `localhost:6277`
+3. Open the interactive inspector in your browser
+4. Let you browse and read resources
+
+In the inspector:
+- View all available resources
+- Read resource contents
+- Test resource subscriptions
+- See how resources are defined
+- Stop with `Ctrl+C`
