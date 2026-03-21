@@ -299,3 +299,85 @@ All three models are possible, depending on where LLM API calls are made.
 
 - Keep LLM calls in one place when possible to simplify billing and governance
 - If using hybrid design, track token usage per component and set budget alerts
+
+## 18. Can MCP be monitored using Langflow or similar tools?
+
+Yes, but use two observability layers.
+
+- LLM observability tools (Langflow ecosystem, Langfuse, LangSmith, Helicone, Arize, etc.) are great for prompt/response traces, token usage, and model behavior
+- MCP server observability tools (Prometheus/Grafana or cloud monitoring) are needed for tool latency, server errors, auth failures, rate limits, and downstream dependency health
+
+For production systems, combine both.
+
+Best practice:
+
+- propagate a shared `request_id` or `trace_id` across client, MCP server, and downstream calls
+- correlate model events (prompt/tool decision) with server events (tool execution, DB/API outcomes)
+
+This gives end-to-end visibility from user prompt to infrastructure behavior.
+
+## 19. How can I implement logging and monitoring for MCP in production?
+
+Use logs, metrics, traces, health checks, and alerts together.
+
+### Logging (structured JSON)
+
+Log at least:
+
+- timestamp
+- request ID / correlation ID
+- session ID
+- caller identity (when available)
+- tool name
+- validation result
+- latency
+- success or failure status
+- sanitized error details
+
+Do not log secrets, full tokens, or raw sensitive payloads.
+
+### Metrics
+
+Track:
+
+- total requests
+- tool calls by tool name
+- error counts by tool and error type
+- latency histograms (p50/p95/p99)
+- active sessions
+- rate-limited requests
+- downstream dependency failures
+
+If server-side LLM calls exist, also track token usage and cost.
+
+### Tracing
+
+Use OpenTelemetry spans for:
+
+- incoming MCP request
+- tool execution
+- downstream HTTP/DB calls
+
+Tracing is critical for debugging cross-service latency and failures.
+
+### Health and readiness
+
+Expose endpoints such as:
+
+- `/healthz` for process health
+- `/readyz` for dependency readiness
+
+### Alerts (minimum)
+
+- high error rate
+- p95/p99 latency spikes
+- auth failure spikes
+- dependency outage/error spikes
+- budget threshold exceeded (if server-side LLM usage)
+
+### Rollout approach
+
+1. Start with structured logs + correlation IDs
+2. Add metrics and dashboards
+3. Add alerts
+4. Add traces for end-to-end debugging
