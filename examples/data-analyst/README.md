@@ -67,3 +67,11 @@ products    — Electronics, Furniture, Books, Kitchen items
 customers   — 6 customers across North/South/East/West regions
 sales       — 15 transactions in 2024 with quantity and discounts
 ```
+
+## Screenshots
+
+### MCP Inspector — Available Tools
+![List of available MCP tools in the inspector](screenshots/list_tools.png)
+
+### MCP Inspector — Running a Query
+![Testing the data analyst tool in the MCP inspector](screenshots/test_data_analyst.png)
